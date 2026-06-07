@@ -2,6 +2,111 @@
 
 import { useState, useRef, useEffect } from "react";
 
+/* ─── SVG Decorative Components ─── */
+
+function StarburstIcon({ className = "", size = 48 }: { className?: string; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {Array.from({ length: 12 }).map((_, i) => (
+        <line
+          key={i}
+          x1="24"
+          y1="4"
+          x2="24"
+          y2="16"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          transform={`rotate(${i * 30} 24 24)`}
+        />
+      ))}
+      <circle cx="24" cy="24" r="4" fill="currentColor" />
+    </svg>
+  );
+}
+
+function DiamondDivider() {
+  return (
+    <div className="flex items-center justify-center gap-3 py-2">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#d4a574]/40 to-transparent" />
+      <div className="w-2 h-2 rotate-45 bg-[#d97642]/40" />
+      <div className="w-1.5 h-1.5 rotate-45 bg-[#d4a574]/30" />
+      <div className="w-2 h-2 rotate-45 bg-[#d97642]/40" />
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#d4a574]/40 to-transparent" />
+    </div>
+  );
+}
+
+function AtomicOrnament({ className = "" }: { className?: string }) {
+  return (
+    <svg width="120" height="120" viewBox="0 0 120 120" className={className} fill="none">
+      <ellipse cx="60" cy="60" rx="50" ry="18" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+      <ellipse cx="60" cy="60" rx="50" ry="18" stroke="currentColor" strokeWidth="1" opacity="0.3" transform="rotate(60 60 60)" />
+      <ellipse cx="60" cy="60" rx="50" ry="18" stroke="currentColor" strokeWidth="1" opacity="0.3" transform="rotate(120 60 60)" />
+      <circle cx="60" cy="60" r="5" fill="currentColor" opacity="0.4" />
+    </svg>
+  );
+}
+
+/* ─── Section Label Component ─── */
+function SectionLabel({ 
+  icon, 
+  label, 
+  accentColor = "#d97642" 
+}: { 
+  icon: React.ReactNode; 
+  label: string; 
+  accentColor?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <div
+        className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm"
+        style={{ backgroundColor: accentColor }}
+      >
+        {icon}
+      </div>
+      <h3 
+        className="text-xs font-bold tracking-[0.2em] uppercase"
+        style={{ color: accentColor }}
+      >
+        {label}
+      </h3>
+      <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, ${accentColor}30, transparent)` }} />
+    </div>
+  );
+}
+
+/* ─── Field Wrapper Component ─── */
+function MCMField({
+  label,
+  required = false,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="group">
+      <label className="block text-xs font-semibold tracking-[0.08em] uppercase text-[#6b5d4f] mb-2 transition-colors duration-200 group-focus-within:text-[#d97642]">
+        {label}
+        {required && <span className="text-[#e57a77] ml-1">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+/* ─── Main Dashboard Component ─── */
+
 export default function SepsisDashboard() {
   const [formData, setFormData] = useState<any>({
     age: "",
@@ -91,7 +196,7 @@ export default function SepsisDashboard() {
       const data = await response.json();
       setHasilPrediksi(data);
     } catch (error) {
-      alert("Gagal terhubung ke Backend Python. Pastikan FastAPI sudah menyala!");
+      alert("Failed to connect to Python Backend. Make sure FastAPI is running!");
     } finally {
       setLoading(false);
     }
@@ -102,223 +207,639 @@ export default function SepsisDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 font-sans text-slate-800 flex flex-col items-center justify-center py-12">
-      <div className="max-w-6xl mx-auto space-y-6">
-        
-        <div className="bg-blue-900 text-white p-6 rounded-xl shadow-md border-b-4 border-orange-500">
-          <h1 className="text-3xl font-bold">Triage Sepsis Terintegrasi AI</h1>
-          <p className="text-blue-200 mt-2">Deteksi Dini qSOFA & Analisis Asam Laktat XGBoost</p>
+    <div className="min-h-screen relative overflow-hidden" style={{ background: '#faf3eb' }}>
+      
+      {/* ─── Background Decorative Elements ─── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Large starburst - top right */}
+        <div className="absolute -top-20 -right-20 animate-starburst">
+          <StarburstIcon size={280} className="text-[#d4a574]/10" />
         </div>
+        {/* Atomic ornament - bottom left */}
+        <div className="absolute bottom-10 -left-10" style={{ animationDelay: '2s' }}>
+          <AtomicOrnament className="text-[#d97642]/8 animate-starburst" />
+        </div>
+        {/* Organic blob shapes */}
+        <div className="absolute top-1/3 right-10 w-64 h-64 organic-blob bg-[#4a7c59]/[0.04]" />
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 organic-blob bg-[#d97642]/[0.04]" />
+        {/* Subtle grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: `
+              linear-gradient(#2c2416 1px, transparent 1px),
+              linear-gradient(90deg, #2c2416 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px'
+          }}
+        />
+      </div>
 
-        <div className="min-h-screen">
-          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-md border border-slate-200">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 space-y-8">
+        
+        {/* ═══════════════ HEADER ═══════════════ */}
+        <header className="animate-fade-in-up">
+          <div 
+            className="relative overflow-hidden rounded-3xl px-10 py-10"
+            style={{
+              background: 'linear-gradient(135deg, #2c2416 0%, #3d3327 40%, #4a3f30 100%)',
+              boxShadow: '0 12px 48px rgba(44, 36, 22, 0.3)',
+            }}
+          >
+            {/* Header starburst decoration */}
+            <div className="absolute top-4 right-8 animate-starburst">
+              <StarburstIcon size={80} className="text-[#d4a574]/20" />
+            </div>
+            <div className="absolute bottom-4 left-8">
+              <StarburstIcon size={48} className="text-[#d97642]/15" />
+            </div>
+            
+            {/* Geometric accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #d97642, #d4a574, #4a7c59, #7d9ba8)' }} />
+
+            <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-3 h-3 rounded-full bg-[#d97642] animate-pulse-warm" />
+                  <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#d4a574]/70">
+                    Hybrid AI Decision System
+                  </span>
+                </div>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-[#f5e6d3] tracking-tight leading-tight">
+                  SepsisGuard
+                </h1>
+                <p className="text-[#d4a574]/80 mt-2 text-base font-light tracking-wide max-w-lg">
+                  Early qSOFA Detection & XGBoost Lactate Analysis
+                </p>
+              </div>
+
+              {/* Decorative stat pills */}
+              <div className="flex gap-3">
+                <div className="px-4 py-2.5 rounded-full border border-[#d4a574]/20 bg-[#d4a574]/5 backdrop-blur-sm">
+                  <div className="text-[10px] font-bold tracking-[0.15em] uppercase text-[#d4a574]/60">Engine</div>
+                  <div className="text-sm font-bold text-[#f5e6d3]">XGBoost</div>
+                </div>
+                <div className="px-4 py-2.5 rounded-full border border-[#4a7c59]/20 bg-[#4a7c59]/5 backdrop-blur-sm">
+                  <div className="text-[10px] font-bold tracking-[0.15em] uppercase text-[#4a7c59]/60">Logic</div>
+                  <div className="text-sm font-bold text-[#f5e6d3]">qSOFA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* ═══════════════ FORM ═══════════════ */}
+        <div className="animate-fade-in-up delay-200">
+          <form onSubmit={handleSubmit} className="relative">
+            
+            {/* Loading Overlay */}
             {loading && (
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
-                <div className="text-xl font-bold text-blue-900 animate-pulse bg-white px-8 py-4 rounded-lg shadow-xl border">
-                  Menganalisis Pola Medis...
+              <div className="absolute inset-0 bg-[#faf3eb]/70 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
+                <div className="flex flex-col items-center gap-4 bg-[#fffaf5] px-10 py-8 rounded-2xl shadow-lg border border-[#d4a574]/20">
+                  <div className="animate-starburst">
+                    <StarburstIcon size={48} className="text-[#d97642]" />
+                  </div>
+                  <span className="text-lg font-bold text-[#2c2416] tracking-wide">
+                    Analyzing Medical Patterns...
+                  </span>
+                  <div className="w-48 h-1 rounded-full bg-[#f5e6d3] overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-[#d97642] to-[#d4a574] animate-shimmer" />
+                  </div>
                 </div>
               </div>
             )}
 
-            <h2 className="text-xl font-bold mb-4 border-b pb-2 text-red-600 flex items-center gap-2">
-              Wajib Diisi (Parameter Kritis)
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div>
-                <label className="block text-sm font-bold mb-1">Usia (Tahun)</label>
-                <input required type="number" name="age" value={formData.age} onChange={handleInputChange} placeholder="Contoh: 45" className="w-full border-2 border-slate-300 p-2 rounded focus:border-blue-500 placeholder-slate-400" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1">Jenis Kelamin</label>
-                <select required name="gender" value={formData.gender} onChange={handleInputChange} className="w-full border-2 border-slate-300 p-2 rounded focus:border-blue-500 text-slate-700">
-                  <option value="" disabled>Pilih Kelamin...</option>
-                  <option value="M">Laki-laki (M)</option>
-                  <option value="F">Perempuan (F)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1">Berat Badan (Kg)</label>
-                <input required type="number" step="0.1" name="weight_kg" value={formData.weight_kg} onChange={handleInputChange} placeholder="Contoh: 65.5" className="w-full border-2 border-slate-300 p-2 rounded focus:border-blue-500 placeholder-slate-400" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1">Tinggi Badan (Cm)</label>
-                <input required type="number" step="0.1" name="height_cm" value={formData.height_cm} onChange={handleInputChange} placeholder="Contoh: 165" className="w-full border-2 border-slate-300 p-2 rounded focus:border-blue-500 placeholder-slate-400" />
-              </div>
+            <div className="mcm-card-elevated p-8 md:p-10 space-y-10 wood-texture-overlay">
 
-              <div>
-                <label className="block text-sm font-bold mb-1 text-blue-700">Tensi Sistolik</label>
-                <input required type="number" name="sysbp_mean" value={formData.sysbp_mean} onChange={handleInputChange} placeholder="Contoh: 120" className="w-full border-2 border-blue-200 bg-blue-50 p-2 rounded focus:border-blue-500 placeholder-blue-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-blue-700">Laju Napas (RR)</label>
-                <input required type="number" name="respiratory_rate_mean" value={formData.respiratory_rate_mean} onChange={handleInputChange} placeholder="Contoh: 16" className="w-full border-2 border-blue-200 bg-blue-50 p-2 rounded focus:border-blue-500 placeholder-blue-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-blue-700">Skor GCS Total</label>
-                <input required type="number" name="gcs_total" value={formData.gcs_total} onChange={handleInputChange} placeholder="Contoh: 15" className="w-full border-2 border-blue-200 bg-blue-50 p-2 rounded focus:border-blue-500 placeholder-blue-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-blue-700">SpO2 (Oksigen %)</label>
-                <input required type="number" name="spo2_mean" value={formData.spo2_mean} onChange={handleInputChange} placeholder="Contoh: 98" className="w-full border-2 border-blue-200 bg-blue-50 p-2 rounded focus:border-blue-500 placeholder-blue-300" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">PaO2/FiO2 Ratio</label>
-                <input required type="number" step="0.1" name="pao2_fio2_ratio" value={formData.pao2_fio2_ratio} onChange={handleInputChange} placeholder="Contoh: 400" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">Asam Laktat (mmol/L)</label>
-                <input required type="number" step="0.1" name="lactate_mmol" value={formData.lactate_mmol} onChange={handleInputChange} placeholder="Contoh: 1.2" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">Kreatinin</label>
-                <input required type="number" step="0.1" name="creatinine" value={formData.creatinine} onChange={handleInputChange} placeholder="Contoh: 0.9" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">pH Arteri</label>
-                <input required type="number" step="0.1" name="ph_arterial" value={formData.ph_arterial} onChange={handleInputChange} placeholder="Contoh: 7.4" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">Bikarbonat</label>
-                <input required type="number" step="0.1" name="bicarbonate" value={formData.bicarbonate} onChange={handleInputChange} placeholder="Contoh: 24" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">INR (Pembekuan)</label>
-                <input required type="number" step="0.1" name="inr" value={formData.inr} onChange={handleInputChange} placeholder="Contoh: 1.0" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-orange-600">Platelet (Trombosit)</label>
-                <input required type="number" name="platelet_count" value={formData.platelet_count} onChange={handleInputChange} placeholder="Contoh: 250" className="w-full border-2 border-orange-200 bg-orange-50 p-2 rounded focus:border-orange-500 placeholder-orange-300" />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-bold mb-1 text-purple-700">Skor SIRS</label>
-                <input required type="number" name="sirs_criteria" value={formData.sirs_criteria} onChange={handleInputChange} placeholder="Contoh: 0 atau 1" className="w-full border-2 border-purple-200 bg-purple-50 p-2 rounded focus:border-purple-500 placeholder-purple-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-purple-700">Skor APACHE IV</label>
-                <input required type="number" name="apache_iv" value={formData.apache_iv} onChange={handleInputChange} placeholder="Contoh: 45" className="w-full border-2 border-purple-200 bg-purple-50 p-2 rounded focus:border-purple-500 placeholder-purple-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-purple-700">Skor SOFA</label>
-                <input required type="number" name="sofa_score" value={formData.sofa_score} onChange={handleInputChange} placeholder="Contoh: 2" className="w-full border-2 border-purple-200 bg-purple-50 p-2 rounded focus:border-purple-500 placeholder-purple-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-purple-700">Skor qSOFA Awal</label>
-                <input required type="number" name="qsofa" value={formData.qsofa} onChange={handleInputChange} placeholder="Contoh: 0" className="w-full border-2 border-purple-200 bg-purple-50 p-2 rounded focus:border-purple-500 placeholder-purple-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-emerald-600">Total Cairan (mL/24j)</label>
-                <input required type="number" name="fluids_ml_24h" value={formData.fluids_ml_24h} onChange={handleInputChange} placeholder="Contoh: 1500" className="w-full border-2 border-emerald-200 bg-emerald-50 p-2 rounded focus:border-emerald-500 placeholder-emerald-300" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1 text-emerald-600">Antibiotik (24 Jam)</label>
-                <select required name="antibiotics_24h" value={formData.antibiotics_24h} onChange={handleInputChange} className="w-full border-2 border-emerald-200 bg-emerald-50 p-2 rounded focus:border-emerald-500 text-emerald-800">
-                  <option value="" disabled>Pilih Status...</option>
-                  <option value="1">Ya (Diberikan)</option>
-                  <option value="0">Tidak</option>
-                </select>
-              </div>
-            </div>
-
-            {/* MENU LIPAT UNTUK 50+ PARAMETER LANJUTAN */}
-            {/* <div className="mt-8 border-t pt-6">
-              <button 
-                type="button" 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-slate-600 hover:text-slate-900 font-black flex items-center gap-2 bg-slate-100 p-3 rounded w-full justify-between transition-colors"
-              >
-                <span>{showAdvanced ? "▼ Sembunyikan 54 Parameter Lainnya" : "▶ Cek & Edit 54 Parameter Pelengkap (Default Aman)"}</span>
-                <span className="text-xs bg-slate-300 px-2 py-1 rounded text-slate-700">Opsional</span>
-              </button>
-              
-              {showAdvanced && (
-                <div className="mt-4 p-6 bg-slate-50 rounded-lg grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 border border-slate-200 h-96 overflow-y-auto">
-                  {advancedFieldsList.map((key) => (
-                    <div key={key}>
-                      <label className="block text-[10px] font-bold text-slate-500 mb-1 truncate" title={key}>
-                        {key.replace(/_/g, " ").toUpperCase()}
-                      </label>
-                      <input 
-                        type="number" 
-                        step="any"
-                        name={key} 
-                        value={formData[key]} 
-                        onChange={handleInputChange} 
-                        className="w-full border border-slate-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-slate-500" 
-                      />
-                    </div>
-                  ))}
+              {/* ── Section 1: Patient Demographics ── */}
+              <section>
+                <SectionLabel 
+                  icon="◈" 
+                  label="Patient Demographics" 
+                  accentColor="#6b5d4f"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <MCMField label="Age (Years)" required>
+                    <input
+                      required
+                      type="number"
+                      name="age"
+                      min="0"
+                      max="150"
+                      value={formData.age}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 45"
+                      className="mcm-input"
+                    />
+                  </MCMField>
+                  <MCMField label="Gender" required>
+                    <select
+                      required
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleInputChange}
+                      className="mcm-select"
+                    >
+                      <option value="" disabled>Select Gender...</option>
+                      <option value="M">Male (M)</option>
+                      <option value="F">Female (F)</option>
+                    </select>
+                  </MCMField>
+                  <MCMField label="Body Weight (Kg)" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="weight_kg"
+                      value={formData.weight_kg}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 65.5"
+                      className="mcm-input"
+                    />
+                  </MCMField>
+                  <MCMField label="Height (Cm)" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="height_cm"
+                      value={formData.height_cm}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 165"
+                      className="mcm-input"
+                    />
+                  </MCMField>
                 </div>
-              )}
-            </div> */}
+              </section>
 
-            <div className="mt-8 pt-6 flex justify-end">
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 px-12 rounded-lg shadow-xl text-lg transition-transform hover:scale-105 disabled:bg-slate-400 disabled:hover:scale-100"
-              >
-                {loading ? "Menganalisis Pola Sepsis..." : "Mulai Deteksi Sepsis"}
-              </button>
+              <DiamondDivider />
+
+              {/* ── Section 2: Vital Signs (qSOFA Parameters) ── */}
+              <section>
+                <SectionLabel 
+                  icon="♦" 
+                  label="Vital Signs — qSOFA Components" 
+                  accentColor="#7d9ba8"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <MCMField label="Systolic BP (mmHg)" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      name="sysbp_mean"
+                      value={formData.sysbp_mean}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 120"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(125, 155, 168, 0.35)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Respiratory Rate (RR)" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      name="respiratory_rate_mean"
+                      value={formData.respiratory_rate_mean}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 16"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(125, 155, 168, 0.35)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="GCS Total Score" required>
+                    <input
+                      required
+                      type="number"
+                      min="3"
+                      max="15"
+                      name="gcs_total"
+                      value={formData.gcs_total}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 15"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(125, 155, 168, 0.35)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="SpO2 (Oxygen %)" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      max="100"
+                      name="spo2_mean"
+                      value={formData.spo2_mean}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 98"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(125, 155, 168, 0.35)' }}
+                    />
+                  </MCMField>
+                </div>
+              </section>
+
+              <DiamondDivider />
+
+              {/* ── Section 3: Lab / Biomarker ── */}
+              <section>
+                <SectionLabel 
+                  icon="✦" 
+                  label="Laboratory & Biomarkers" 
+                  accentColor="#d97642"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <MCMField label="PaO2/FiO2 Ratio" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="pao2_fio2_ratio"
+                      value={formData.pao2_fio2_ratio}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 400"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Lactate (mmol/L)" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="lactate_mmol"
+                      value={formData.lactate_mmol}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 1.2"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Creatinine" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="creatinine"
+                      value={formData.creatinine}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 0.9"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Arterial pH" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.01"
+                      min="6.8"
+                      max="7.8"
+                      name="ph_arterial"
+                      value={formData.ph_arterial}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 7.40"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Bicarbonate" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="bicarbonate"
+                      value={formData.bicarbonate}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 24"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="INR (Coagulation)" required>
+                    <input
+                      required
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      name="inr"
+                      value={formData.inr}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 1.0"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Platelet Count" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      name="platelet_count"
+                      value={formData.platelet_count}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 250"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(217, 118, 66, 0.3)' }}
+                    />
+                  </MCMField>
+                </div>
+              </section>
+
+              <DiamondDivider />
+
+              {/* ── Section 4: Scoring Systems ── */}
+              <section>
+                <SectionLabel 
+                  icon="◆" 
+                  label="Clinical Scoring Systems" 
+                  accentColor="#4a7c59"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <MCMField label="SIRS Score" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      max="4"
+                      name="sirs_criteria"
+                      value={formData.sirs_criteria}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 0 or 1"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(74, 124, 89, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="APACHE IV Score" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      name="apache_iv"
+                      value={formData.apache_iv}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 45"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(74, 124, 89, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="SOFA Score" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      max="24"
+                      name="sofa_score"
+                      value={formData.sofa_score}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 2"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(74, 124, 89, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Initial qSOFA Score" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      max="3"
+                      name="qsofa"
+                      value={formData.qsofa}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 0"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(74, 124, 89, 0.3)' }}
+                    />
+                  </MCMField>
+                </div>
+              </section>
+
+              <DiamondDivider />
+
+              {/* ── Section 5: Tatalaksana ── */}
+              <section>
+                <SectionLabel 
+                  icon="✧" 
+                  label="Interventions & Treatment" 
+                  accentColor="#8b7355"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <MCMField label="Total Fluids (mL/24h)" required>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      name="fluids_ml_24h"
+                      value={formData.fluids_ml_24h}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 1500"
+                      className="mcm-input"
+                      style={{ borderColor: 'rgba(139, 115, 85, 0.3)' }}
+                    />
+                  </MCMField>
+                  <MCMField label="Antibiotics (24h)" required>
+                    <select
+                      required
+                      name="antibiotics_24h"
+                      value={formData.antibiotics_24h}
+                      onChange={handleInputChange}
+                      className="mcm-select"
+                      style={{ borderColor: 'rgba(139, 115, 85, 0.3)' }}
+                    >
+                      <option value="" disabled>Select Status...</option>
+                      <option value="1">Yes (Administered)</option>
+                      <option value="0">No</option>
+                    </select>
+                  </MCMField>
+                </div>
+              </section>
+
+              {/* ── Submit Button ── */}
+              <div className="flex justify-center pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="mcm-btn-primary flex items-center gap-3"
+                >
+                  <StarburstIcon size={22} className="text-white/80" />
+                  {loading ? "Analyzing Sepsis Patterns..." : "Start Sepsis Detection"}
+                </button>
+              </div>
             </div>
           </form>
         </div>
 
+        {/* ═══════════════ RESULTS ═══════════════ */}
         {hasilPrediksi && (
-          <div 
-            ref={resultRef} 
-            className={`p-8 rounded-xl shadow-2xl border-t-8 mt-12 transition-all duration-500 ${
-              hasilPrediksi.label_final === 1 
-                ? "bg-red-50 border-red-600 text-red-900" 
-                : "bg-green-50 border-green-600 text-green-900"
-            }`}
+          <div
+            ref={resultRef}
+            className="animate-fade-in-up space-y-6"
           >
-            <div className="flex justify-between items-start border-b border-black/10 pb-4 mb-6">
-              <h2 className="text-4xl font-black">{hasilPrediksi.status_pasien}</h2>
-              <button 
-                onClick={scrollToTop}
-                className="bg-black/10 hover:bg-black/20 text-black/70 font-semibold py-2 px-4 rounded-lg text-sm transition-colors"
-              >
-                Edit Data
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-800">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-black/5">
-                <p className="text-sm text-slate-500 font-bold uppercase tracking-wider mb-2">Prediksi AI (XGBoost)</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-slate-800">{hasilPrediksi.learning_engine.probabilitas_sepsis_persen}%</span>
-                  <span className="text-lg font-medium text-slate-600">Probabilitas Sepsis</span>
+            {/* Result Header Card */}
+            <div
+              className="relative overflow-hidden rounded-3xl px-10 py-8"
+              style={{
+                background: hasilPrediksi.label_final === 1
+                  ? 'linear-gradient(135deg, #5c2a2a 0%, #7a3333 50%, #4a2020 100%)'
+                  : 'linear-gradient(135deg, #2a4a33 0%, #336644 50%, #204a2a 100%)',
+                boxShadow: hasilPrediksi.label_final === 1
+                  ? '0 12px 48px rgba(229, 122, 119, 0.2)'
+                  : '0 12px 48px rgba(74, 124, 89, 0.2)',
+              }}
+            >
+              {/* Decorative elements */}
+              <div className="absolute top-4 right-8 animate-starburst">
+                <StarburstIcon size={64} className={hasilPrediksi.label_final === 1 ? 'text-[#e57a77]/15' : 'text-[#4a7c59]/20'} />
+              </div>
+              <div className="absolute top-0 left-0 right-0 h-1" style={{
+                background: hasilPrediksi.label_final === 1
+                  ? 'linear-gradient(90deg, #e57a77, #d97642, #d4a574)'
+                  : 'linear-gradient(90deg, #4a7c59, #7d9ba8, #d4a574)'
+              }} />
+
+              <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-2.5 h-2.5 rounded-full ${hasilPrediksi.label_final === 1 ? 'bg-[#e57a77]' : 'bg-[#4a7c59]'} animate-pulse-warm`} />
+                    <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/50">
+                      Analysis Result
+                    </span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                    {hasilPrediksi.status_pasien}
+                  </h2>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">{hasilPrediksi.learning_engine.pesan}</p>
+                <button
+                  onClick={scrollToTop}
+                  className="px-6 py-2.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white font-semibold text-sm tracking-wide transition-all duration-300"
+                >
+                  ← Edit Data
+                </button>
+              </div>
+            </div>
+
+            {/* Result Detail Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* AI Prediction Card */}
+              <div className="mcm-card p-8 relative overflow-hidden group">
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <StarburstIcon size={32} className="text-[#d97642]/20" />
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 rounded-full bg-[#d97642]" />
+                  <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8b7355]">
+                    AI Prediction (XGBoost)
+                  </p>
+                </div>
+                <div className="flex items-baseline gap-3 mb-3">
+                  <span className="text-5xl font-extrabold text-[#2c2416] tracking-tight">
+                    {hasilPrediksi.learning_engine.probabilitas_sepsis_persen}%
+                  </span>
+                  <span className="text-base font-medium text-[#8b7355]">
+                    Sepsis Probability
+                  </span>
+                </div>
+                {/* Mini progress bar */}
+                <div className="w-full h-2 rounded-full bg-[#f5e6d3] mb-4 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-1000 ease-out"
+                    style={{
+                      width: `${hasilPrediksi.learning_engine.probabilitas_sepsis_persen}%`,
+                      background: hasilPrediksi.learning_engine.probabilitas_sepsis_persen > 50
+                        ? 'linear-gradient(90deg, #d97642, #e57a77)'
+                        : 'linear-gradient(90deg, #4a7c59, #7d9ba8)',
+                    }}
+                  />
+                </div>
+                <p className="text-sm text-[#6b5d4f] leading-relaxed">
+                  {hasilPrediksi.learning_engine.pesan}
+                </p>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-black/5">
-                <p className="text-sm text-slate-500 font-bold uppercase tracking-wider mb-2">Logika Klinis (qSOFA)</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-slate-800">{hasilPrediksi.reasoning_engine.skor_qsofa}</span>
-                  <span className="text-lg font-medium text-slate-600">/ 3 Kriteria</span>
+              {/* Clinical Logic Card */}
+              <div className="mcm-card p-8 relative overflow-hidden group">
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <AtomicOrnament className="text-[#7d9ba8]/15 w-12 h-12" />
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 rounded-full bg-[#7d9ba8]" />
+                  <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8b7355]">
+                    Clinical Logic (qSOFA)
+                  </p>
+                </div>
+                <div className="flex items-baseline gap-3 mb-4">
+                  <span className="text-5xl font-extrabold text-[#2c2416] tracking-tight">
+                    {hasilPrediksi.reasoning_engine.skor_qsofa}
+                  </span>
+                  <span className="text-base font-medium text-[#8b7355]">/ 3 Criteria</span>
+                </div>
+                {/* qSOFA dots indicator */}
+                <div className="flex gap-2 mb-4">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-8 h-2 rounded-full transition-all duration-500"
+                      style={{
+                        background: i < hasilPrediksi.reasoning_engine.skor_qsofa
+                          ? '#d97642'
+                          : '#f5e6d3',
+                      }}
+                    />
+                  ))}
                 </div>
                 {hasilPrediksi.reasoning_engine.gejala_terpantau.length > 0 ? (
-                  <ul className="list-disc pl-5 mt-3 text-sm text-slate-700 font-medium space-y-1">
+                  <ul className="space-y-2 mt-3">
                     {hasilPrediksi.reasoning_engine.gejala_terpantau.map((gejala: string, idx: number) => (
-                      <li key={idx}>{gejala}</li>
+                      <li key={idx} className="flex items-start gap-2.5 text-sm text-[#6b5d4f]">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#d97642] mt-1.5 shrink-0" />
+                        <span>{gejala}</span>
+                      </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-3 text-sm text-slate-600 italic">Tidak ada gejala qSOFA terpantau.</p>
+                  <p className="mt-3 text-sm text-[#8b7355] italic">
+                    No qSOFA symptoms detected.
+                  </p>
                 )}
               </div>
             </div>
 
-            <div className="mt-6 bg-white p-6 rounded-lg shadow-sm border border-black/5 border-l-4 border-l-slate-800">
-              <p className="text-sm text-slate-500 font-bold uppercase tracking-wider mb-2">Insight & Rekomendasi Sistem</p>
-              <p className="text-lg font-medium text-slate-700">{hasilPrediksi.insight_klinis}</p>
+            {/* Insight & Recommendation Card */}
+            <div className="mcm-card p-8 mcm-accent-border-left relative overflow-hidden">
+              <div className="absolute top-4 right-8">
+                <StarburstIcon size={36} className="text-[#d4a574]/10 animate-starburst" />
+              </div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rotate-45 bg-[#d97642]" />
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#8b7355]">
+                  Insight & System Recommendation
+                </p>
+              </div>
+              <p className="text-lg font-medium text-[#2c2416] leading-relaxed">
+                {hasilPrediksi.insight_klinis}
+              </p>
             </div>
           </div>
         )}
+
+        {/* ═══════════════ FOOTER ═══════════════ */}
+        <footer className="text-center pt-8 pb-4 animate-fade-in delay-500">
+          <DiamondDivider />
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <StarburstIcon size={16} className="text-[#d4a574]/40" />
+            <p className="text-xs font-medium tracking-[0.15em] uppercase text-[#8b7355]/60">
+              SepsisGuard — Hybrid AI Decision System
+            </p>
+            <StarburstIcon size={16} className="text-[#d4a574]/40" />
+          </div>
+        </footer>
       </div>
     </div>
   );
