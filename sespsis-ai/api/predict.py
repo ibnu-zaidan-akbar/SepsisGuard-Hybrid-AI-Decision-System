@@ -1,6 +1,17 @@
 # nyalain server api
 # uvicorn predict:app --reload
 
+# json simulasi json
+# {
+#   "respiratory_rate_mean": 25,
+#   "sysbp_mean": 90,
+#   "lactate_mmol": 4.5,
+#   "age": 60,
+#   "hr_mean": 110,
+#   "temp_celsius_mean": 38.5,
+#   "sofa_score": 4
+# }
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import joblib
@@ -22,7 +33,7 @@ xgb_model = joblib.load('sepsis_xgboost_model.pkl')
 preprocessor = joblib.load('sepsis_preprocessor.pkl')
 with open('fitur_input.json', 'r') as f:
     urutan_fitur = json.load(f)
-print("AI Siap Menerima Pasien!")
+print("✅ AI Siap Menerima Pasien!")
 
 @app.post("/predict")
 async def prediksi_sepsis(request: Request):
