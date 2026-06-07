@@ -41,16 +41,15 @@ async def prediksi_sepsis(request: Request):
     df_input = pd.DataFrame([data_masuk], columns=urutan_fitur)
 
     data_siap_ai = preprocessor.transform(df_input)
-    probabilitas_ai = xgb_model.predict_proba(data_siap_ai)[0][1]
-    persentase_ai = round(probabilitas_ai * 100, 1)
-    
-    label_ai_murni = 1 if probabilitas_ai > 0.50 else 0
+    probabilitas_ai = float(xgb_model.predict_proba(data_siap_ai)[0][1])
+    persentase_ai = float(round(probabilitas_ai * 100, 1))
+    label_ai_murni = int(1 if probabilitas_ai > 0.50 else 0)
 
     skor_qsofa = 0
     alasan_medis = []
     
     napas = float(data_masuk.get('respiratory_rate_mean', 20))
-    tensi = float(data_masuk.get('sysbp_mean', 120)),
+    tensi = float(data_masuk.get('sysbp_mean', 120))
     gcs = float(data_masuk.get('gcs_total', 15))
     
     if napas >= 22:
@@ -70,9 +69,20 @@ async def prediksi_sepsis(request: Request):
         status_akhir = "✅ PASIEN AMAN"
         label_final = 0
 
+    pesan_insight = ""
+    if label_ai_murni == 1 and skor_qsofa >= 2:
+        pesan_insight = "Kondisi sangat kritis. Sinyal Lab/AI dan pemeriksaan fisik qSOFA sama-sama menunjukkan syok septik akut. Segera lakukan resusitasi cairan dan berikan antibiotik spektrum luas!"
+    elif label_ai_murni == 1 and skor_qsofa < 2:
+        pesan_insight = "Peringatan Dini (Keunggulan AI)! Secara fisik (qSOFA) pasien terlihat aman, namun AI mendeteksi anomali kritis pada darah/oksigen (Laktat/PaO2). Waspada Sepsis tersembunyi!"
+    elif label_ai_murni == 0 and skor_qsofa >= 2:
+        pesan_insight = "Pola darah normal (AI Aman), namun fisik pasien memburuk (qSOFA tinggi). Kemungkinan syok non-sepsis (seperti perdarahan atau masalah jantung). Lakukan observasi."
+    else:
+        pesan_insight = "Seluruh parameter fisik dan laboratorium berada dalam rentang aman. Lakukan observasi rutin sesuai standar ICU."
+
     paket_balasan = {
         "status_pasien": status_akhir,
-        "label_final": label_final, 
+        "label_final": label_final,
+        "insight_klinis": pesan_insight,
         "learning_engine": {
             "label_ai": label_ai_murni,
             "probabilitas_sepsis_persen": persentase_ai,
