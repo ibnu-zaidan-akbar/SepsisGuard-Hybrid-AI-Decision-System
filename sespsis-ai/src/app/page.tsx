@@ -182,11 +182,20 @@ export default function SepsisDashboard() {
     }
 
     try {
-      const response = await fetch("/api/predict", {
+      const response = await fetch("http://127.0.0.1:8000/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
+       // klo udh deploy di railway
+      // const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    
+      // const response = await fetch(`${API_URL}/predict`, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(payload),
+      // });
       const data = await response.json();
       setHasilPrediksi(data);
     } catch (error) {
