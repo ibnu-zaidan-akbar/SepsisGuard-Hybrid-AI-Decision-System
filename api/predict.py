@@ -9,20 +9,17 @@ from pydantic import BaseModel, Field
 import joblib
 import pandas as pd
 import json
-import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("SepsisAI")
 AI_ASSETS = {}
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
         logger.info("Memuat Otak AI dan Komponennya...")
-        AI_ASSETS['model'] = joblib.load(f"{BASE_DIR}/sepsis_xgboost_model.pkl")
-        AI_ASSETS['preprocessor'] = joblib.load(f"{BASE_DIR}/sepsis_preprocessor.pkl")
+        AI_ASSETS['model'] = joblib.load('sepsis_xgboost_model.pkl')
+        AI_ASSETS['preprocessor'] = joblib.load('sepsis_preprocessor.pkl')
         
         with open('fitur_input.json', 'r') as f:
             AI_ASSETS['urutan_fitur'] = json.load(f)
@@ -59,7 +56,7 @@ class PasienInput(BaseModel):
         "extra": "allow" 
     }
 
-@app.post("/api/predict")
+@app.post("/predict")
 async def prediksi_sepsis(data_masuk: PasienInput):
     data_dict = data_masuk.model_dump() 
     

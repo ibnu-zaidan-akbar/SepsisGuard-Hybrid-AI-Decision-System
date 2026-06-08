@@ -182,7 +182,7 @@ export default function SepsisDashboard() {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/predict", {
+      const response = await fetch("sepsisguard-hybrid-ai-decision-system-production.up.railway.app/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
