@@ -182,20 +182,12 @@ export default function SepsisDashboard() {
     }
 
     try {
-      const response = await fetch("sepsis-ai-decision-system.up.railway.app/predict", {
+      const response = await fetch("https://sepsis-ai-decision-system.up.railway.app/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-       // klo udh deploy di railway
-      // const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-    
-      // const response = await fetch(`${API_URL}/predict`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // });
       const data = await response.json();
       setHasilPrediksi(data);
     } catch (error) {
@@ -212,20 +204,15 @@ export default function SepsisDashboard() {
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#faf3eb' }}>
       
-      {/* ─── Background Decorative Elements ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Large starburst - top right */}
         <div className="absolute -top-20 -right-20 animate-starburst">
           <StarburstIcon size={280} className="text-[#d4a574]/10" />
         </div>
-        {/* Atomic ornament - bottom left */}
         <div className="absolute bottom-10 -left-10" style={{ animationDelay: '2s' }}>
           <AtomicOrnament className="text-[#d97642]/8 animate-starburst" />
         </div>
-        {/* Organic blob shapes */}
         <div className="absolute top-1/3 right-10 w-64 h-64 organic-blob bg-[#4a7c59]/[0.04]" />
         <div className="absolute bottom-1/4 left-1/4 w-48 h-48 organic-blob bg-[#d97642]/[0.04]" />
-        {/* Subtle grid pattern */}
         <div 
           className="absolute inset-0 opacity-[0.015]"
           style={{
@@ -239,8 +226,6 @@ export default function SepsisDashboard() {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 space-y-8">
-        
-        {/* ═══════════════ HEADER ═══════════════ */}
         <header className="animate-fade-in-up">
           <div 
             className="relative overflow-hidden rounded-3xl px-10 py-10"
@@ -249,7 +234,6 @@ export default function SepsisDashboard() {
               boxShadow: '0 12px 48px rgba(44, 36, 22, 0.3)',
             }}
           >
-            {/* Header starburst decoration */}
             <div className="absolute top-4 right-8 animate-starburst">
               <StarburstIcon size={80} className="text-[#d4a574]/20" />
             </div>
@@ -257,7 +241,6 @@ export default function SepsisDashboard() {
               <StarburstIcon size={48} className="text-[#d97642]/15" />
             </div>
             
-            {/* Geometric accent line */}
             <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #d97642, #d4a574, #4a7c59, #7d9ba8)' }} />
 
             <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -276,7 +259,6 @@ export default function SepsisDashboard() {
                 </p>
               </div>
 
-              {/* Decorative stat pills */}
               <div className="flex gap-3">
                 <div className="px-4 py-2.5 rounded-full border border-[#d4a574]/20 bg-[#d4a574]/5 backdrop-blur-sm">
                   <div className="text-[10px] font-bold tracking-[0.15em] uppercase text-[#d4a574]/60">Engine</div>
@@ -291,11 +273,8 @@ export default function SepsisDashboard() {
           </div>
         </header>
 
-        {/* ═══════════════ FORM ═══════════════ */}
         <div className="animate-fade-in-up delay-200">
           <form onSubmit={handleSubmit} className="relative">
-            
-            {/* Loading Overlay */}
             {loading && (
               <div className="absolute inset-0 bg-[#faf3eb]/70 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
                 <div className="flex flex-col items-center gap-4 bg-[#fffaf5] px-10 py-8 rounded-2xl shadow-lg border border-[#d4a574]/20">
@@ -313,8 +292,6 @@ export default function SepsisDashboard() {
             )}
 
             <div className="mcm-card-elevated p-8 md:p-10 space-y-10 wood-texture-overlay">
-
-              {/* ── Section 1: Patient Demographics ── */}
               <section>
                 <SectionLabel 
                   icon="◈" 
@@ -378,8 +355,6 @@ export default function SepsisDashboard() {
               </section>
 
               <DiamondDivider />
-
-              {/* ── Section 2: Vital Signs (qSOFA Parameters) ── */}
               <section>
                 <SectionLabel 
                   icon="♦" 
@@ -446,7 +421,6 @@ export default function SepsisDashboard() {
 
               <DiamondDivider />
 
-              {/* ── Section 3: Lab / Biomarker ── */}
               <section>
                 <SectionLabel 
                   icon="✦" 
@@ -557,7 +531,6 @@ export default function SepsisDashboard() {
 
               <DiamondDivider />
 
-              {/* ── Section 4: Scoring Systems ── */}
               <section>
                 <SectionLabel 
                   icon="◆" 
@@ -625,7 +598,6 @@ export default function SepsisDashboard() {
 
               <DiamondDivider />
 
-              {/* ── Section 5: Tatalaksana ── */}
               <section>
                 <SectionLabel 
                   icon="✧" 
@@ -663,7 +635,6 @@ export default function SepsisDashboard() {
                 </div>
               </section>
 
-              {/* ── Submit Button ── */}
               <div className="flex justify-center pt-4">
                 <button
                   type="submit"
@@ -678,13 +649,11 @@ export default function SepsisDashboard() {
           </form>
         </div>
 
-        {/* ═══════════════ RESULTS ═══════════════ */}
         {hasilPrediksi && (
           <div
             ref={resultRef}
             className="animate-fade-in-up space-y-6"
           >
-            {/* Result Header Card */}
             <div
               className="relative overflow-hidden rounded-3xl px-10 py-8"
               style={{
@@ -727,10 +696,7 @@ export default function SepsisDashboard() {
               </div>
             </div>
 
-            {/* Result Detail Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* AI Prediction Card */}
               <div className="mcm-card p-8 relative overflow-hidden group">
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   <StarburstIcon size={32} className="text-[#d97642]/20" />
@@ -749,7 +715,6 @@ export default function SepsisDashboard() {
                     Sepsis Probability
                   </span>
                 </div>
-                {/* Mini progress bar */}
                 <div className="w-full h-2 rounded-full bg-[#f5e6d3] mb-4 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-1000 ease-out"
@@ -766,7 +731,6 @@ export default function SepsisDashboard() {
                 </p>
               </div>
 
-              {/* Clinical Logic Card */}
               <div className="mcm-card p-8 relative overflow-hidden group">
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   <AtomicOrnament className="text-[#7d9ba8]/15 w-12 h-12" />
@@ -783,7 +747,6 @@ export default function SepsisDashboard() {
                   </span>
                   <span className="text-base font-medium text-[#8b7355]">/ 3 Criteria</span>
                 </div>
-                {/* qSOFA dots indicator */}
                 <div className="flex gap-2 mb-4">
                   {[0, 1, 2].map((i) => (
                     <div
@@ -814,7 +777,6 @@ export default function SepsisDashboard() {
               </div>
             </div>
 
-            {/* Insight & Recommendation Card */}
             <div className="mcm-card p-8 mcm-accent-border-left relative overflow-hidden">
               <div className="absolute top-4 right-8">
                 <StarburstIcon size={36} className="text-[#d4a574]/10 animate-starburst" />
@@ -832,7 +794,6 @@ export default function SepsisDashboard() {
           </div>
         )}
 
-        {/* ═══════════════ FOOTER ═══════════════ */}
         <footer className="text-center pt-8 pb-4 animate-fade-in delay-500">
           <DiamondDivider />
           <div className="flex items-center justify-center gap-3 mt-6">
