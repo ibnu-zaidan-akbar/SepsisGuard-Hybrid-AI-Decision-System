@@ -63,10 +63,10 @@ async def prediksi_sepsis(request: Request):
         alasan_medis.append(f"Penurunan tingkat kesadaran (Skor GCS {gcs})")
 
     if label_ai_murni == 1 or skor_qsofa >= 2:
-        status_akhir = "🚨 WASPADA SEPSIS"
+        status_akhir = "WASPADA SEPSIS !"
         label_final = 1
     else:
-        status_akhir = "✅ PASIEN AMAN"
+        status_akhir = "PASIEN AMAN !"
         label_final = 0
 
     pesan_insight = ""
