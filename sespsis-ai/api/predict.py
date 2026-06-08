@@ -1,24 +1,38 @@
 # nyalain server api
 # uvicorn predict:app --reload
 
-# json simulasi json
-# {
-#   "respiratory_rate_mean": 25,
-#   "sysbp_mean": 90,
-#   "lactate_mmol": 4.5,
-#   "age": 60,
-#   "hr_mean": 110,
-#   "temp_celsius_mean": 38.5,
-#   "sofa_score": 4
-# }
-
-from fastapi import FastAPI, Request
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 import joblib
 import pandas as pd
 import json
 
-app = FastAPI(title="Sepsis Hybrid AI Backend")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("SepsisAI")
+AI_ASSETS = {}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        logger.info("Memuat Otak AI dan Komponennya...")
+        AI_ASSETS['model'] = joblib.load('sepsis_xgboost_model.pkl')
+        AI_ASSETS['preprocessor'] = joblib.load('sepsis_preprocessor.pkl')
+        
+        with open('fitur_input.json', 'r') as f:
+            AI_ASSETS['urutan_fitur'] = json.load(f)
+            
+        logger.info("✅ AI Siap Menerima Pasien!")
+        yield
+    except Exception as e:
+        logger.critical(f"Gagal memuat komponen AI: {e}")
+        raise SystemExit("Server dihentikan karena file .pkl/.json bermasalah.")
+    finally:
+        AI_ASSETS.clear()
+
+app = FastAPI(title="Sepsis Hybrid AI Backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,22 +42,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print("Memuat Otak AI dan Komponennya...")
-xgb_model = joblib.load('sepsis_xgboost_model.pkl')
-preprocessor = joblib.load('sepsis_preprocessor.pkl')
-with open('fitur_input.json', 'r') as f:
-    urutan_fitur = json.load(f)
-print("✅ AI Siap Menerima Pasien!")
+class PasienInput(BaseModel):
+    respiratory_rate_mean: float = Field(..., description="Laju napas per menit")
+    sysbp_mean: float = Field(..., description="Tekanan darah sistolik")
+    lactate_mmol: float = Field(..., description="Kadar laktat")
+    age: float = Field(..., description="Usia pasien")
+    hr_mean: float = Field(..., description="Rata-rata detak jantung")
+    temp_celsius_mean: float = Field(..., description="Suhu tubuh celsius")
+    sofa_score: float = Field(..., description="Skor SOFA awal")
+    gcs_total: float = Field(15.0, description="Skor GCS (default 15 jika tidak diisi)")
+
+    model_config = {
+        "extra": "allow" 
+    }
 
 @app.post("/predict")
-async def prediksi_sepsis(request: Request):
-    data_masuk = await request.json()
-    df_input = pd.DataFrame([data_masuk], columns=urutan_fitur)
+async def prediksi_sepsis(data_masuk: PasienInput):
+    payload_dict = data_masuk.model_dump()
 
-    data_siap_ai = preprocessor.transform(df_input)
-    probabilitas_ai = float(xgb_model.predict_proba(data_siap_ai)[0][1])
-    persentase_ai = float(round(probabilitas_ai * 100, 1))
-    label_ai_murni = int(1 if probabilitas_ai > 0.50 else 0)
+    try:
+        df_input = pd.DataFrame([payload_dict], columns=AI_ASSETS['urutan_fitur'])
+        data_siap_ai = AI_ASSETS['preprocessor'].transform(df_input)
+        probabilitas_ai = float(AI_ASSETS['model'].predict_proba(data_siap_ai)[0][1])
+        persentase_ai = float(round(probabilitas_ai * 100, 1))
+        label_ai_murni = int(1 if probabilitas_ai > 0.50 else 0)
+
+    except Exception as e:
+        logger.error(f"Mesin AI gagal memproses data: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Gagal memproses prediksi. Pastikan fitur data lengkap sesuai model AI."
+        )
 
     skor_qsofa = 0
     alasan_medis = []
@@ -79,7 +108,7 @@ async def prediksi_sepsis(request: Request):
     else:
         pesan_insight = "Seluruh parameter fisik dan laboratorium berada dalam rentang aman. Lakukan observasi rutin sesuai standar ICU."
 
-    paket_balasan = {
+    return {
         "status_pasien": status_akhir,
         "label_final": label_final,
         "insight_klinis": pesan_insight,
@@ -92,5 +121,3 @@ async def prediksi_sepsis(request: Request):
             "gejala_terpantau": alasan_medis
         }
     }
-    
-    return paket_balasan
