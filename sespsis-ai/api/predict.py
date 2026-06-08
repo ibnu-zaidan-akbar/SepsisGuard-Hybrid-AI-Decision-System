@@ -58,28 +58,21 @@ class PasienInput(BaseModel):
 
 @app.post("/predict")
 async def prediksi_sepsis(data_masuk: PasienInput):
-    payload_dict = data_masuk.model_dump()
+    data_dict = data_masuk.model_dump() 
+    
+    df_input = pd.DataFrame([data_dict], columns=AI_ASSETS['urutan_fitur'])
 
-    try:
-        df_input = pd.DataFrame([payload_dict], columns=AI_ASSETS['urutan_fitur'])
-        data_siap_ai = AI_ASSETS['preprocessor'].transform(df_input)
-        probabilitas_ai = float(AI_ASSETS['model'].predict_proba(data_siap_ai)[0][1])
-        persentase_ai = float(round(probabilitas_ai * 100, 1))
-        label_ai_murni = int(1 if probabilitas_ai > 0.50 else 0)
-
-    except Exception as e:
-        logger.error(f"Mesin AI gagal memproses data: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Gagal memproses prediksi. Pastikan fitur data lengkap sesuai model AI."
-        )
+    data_siap_ai = AI_ASSETS['preprocessor'].transform(df_input)
+    probabilitas_ai = float(AI_ASSETS['model'].predict_proba(data_siap_ai)[0][1])
+    persentase_ai = float(round(probabilitas_ai * 100, 1))
+    label_ai_murni = int(1 if probabilitas_ai > 0.50 else 0)
 
     skor_qsofa = 0
     alasan_medis = []
-    
-    napas = float(data_masuk.get('respiratory_rate_mean', 20))
-    tensi = float(data_masuk.get('sysbp_mean', 120))
-    gcs = float(data_masuk.get('gcs_total', 15))
+
+    napas = float(data_masuk.respiratory_rate_mean)
+    tensi = float(data_masuk.sysbp_mean)
+    gcs = float(data_masuk.gcs_total)
     
     if napas >= 22:
         skor_qsofa += 1
@@ -115,6 +108,7 @@ async def prediksi_sepsis(data_masuk: PasienInput):
         "learning_engine": {
             "label_ai": label_ai_murni,
             "probabilitas_sepsis_persen": persentase_ai,
+            "pesan": "AI mendeteksi anomali pola medis" if label_ai_murni == 1 else "Pola medis normal"
         },
         "reasoning_engine": {
             "skor_qsofa": skor_qsofa,
